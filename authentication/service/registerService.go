@@ -7,18 +7,22 @@ import (
 	"fmt"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Register(dto model.UserDto) (i interface{}){
+
+func Register(dto model.UserRegisterDto) (interface{}, string){
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	var userCollection *mongo.Collection = config.OpenCollection(config.Client, "user")
-	user := model.UserDtoToEntity(dto)
-	result, insertErr := userCollection.InsertOne(ctx, user)
-		if insertErr != nil {	
-			fmt.Println("Can not create user!")		
-			return nil
+	defer cancel()
+	findErr := config.UserCollection.FindOne(ctx, bson.M{ "username": dto.Username}); findErr == nil {
+		msg := fmt.Println("Username has already existed!")	
+		return nil, msg
+	}
+	user := model.UserRegisterDtoToEntity(dto)
+	result, insertErr := config.UserCollection.InsertOne(ctx, user)
+		if insertErr != nil {
+			msg := fmt.Println("Can not create user!")		
+			return nil, msg
 		}
-		defer cancel()
-	return result
+	return result, "Regisger successful!"
 }

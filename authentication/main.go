@@ -16,6 +16,7 @@ func setupRouter() *gin.Engine {
 	client := r.Group("/api")
 	{
 		client.POST("/auth/register", controller.Register)
+		client.POST("/auth/login", controller.Login)
 	}
 	
 	return r

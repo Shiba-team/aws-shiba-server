@@ -13,7 +13,8 @@ import (
 )
 
 //Client Database instance
-var Client *mongo.Client;
+
+var UserCollection *mongo.Collection
 
 func ConnectDatabase() {
 	err := godotenv.Load(".env")
@@ -38,14 +39,6 @@ func ConnectDatabase() {
 	}
 	fmt.Println("Connected to MongoDB!")
 
-	Client = client
+	UserCollection = client.Database("authentication").Collection("user")
 }
 
-
-//OpenCollection is a  function makes a connection with a collection in the database
-func OpenCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-
-	var collection *mongo.Collection = client.Database("authentication").Collection(collectionName)
-
-	return collection
-}

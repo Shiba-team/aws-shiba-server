@@ -3,7 +3,6 @@ package controller
 import (
 	"authentication/model"
 	"authentication/service"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,16 +11,14 @@ import (
 
 
 func Register(c * gin.Context){
-	var input model.UserDto;
+	var input model.UserRegisterDto
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	  }
-	var result interface{}= service.Register(input);
+	result, msg := service.Register(input);
 	if(result == nil){
-		msg := fmt.Sprintf("Can not create user!")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		c.JSON(http.StatusInternalServerError, gin.H{"messageError": msg})
 	}
-	fmt.Println(result)
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, gin.H{"result" : result, "message": msg})
 }
