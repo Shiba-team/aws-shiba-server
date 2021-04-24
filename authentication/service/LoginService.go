@@ -38,7 +38,7 @@ func GenerateToken(username string) string {
 	return t
 }
 
-func  ValidateToken(encodedToken string) (*jwt.Token, error) {
+func ValidateToken(encodedToken string) (*jwt.Token, error) {
 	secret := os.Getenv("SECRET")
 	if secret == "" {
 		secret = "secret"
@@ -53,22 +53,20 @@ func  ValidateToken(encodedToken string) (*jwt.Token, error) {
 
 }
 
-func Login(dto model.UserLoginDto) (bool,string) {
+func Login(dto model.UserLoginDto) (bool, string) {
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel();
-	var  user model.User
+	defer cancel()
+	var user model.User
 
-	if err := config.UserCollection.FindOne(ctx, bson.M{"username" : dto.Username}).Decode(&user); err != nil{
-		msg := fmt.Println("Username or password incorrect!");
+	if err := config.UserCollection.FindOne(ctx, bson.M{"username": dto.Username}).Decode(&user); err != nil {
+		msg := fmt.Println("Username or password incorrect!")
 		return false, msg
 	}
-	
-	if(!common.CheckPasswordHash(dto.Password, user.Password)){
-		msg := fmt.Println("Username or password incorrect!");
+
+	if !common.CheckPasswordHash(dto.Password, user.Password) {
+		msg := fmt.Println("Username or password incorrect!")
 		return false, msg
 	}
-	defer cancel();
+	defer cancel()
 	return true, GenerateToken(user.Username)
 }
-
-
