@@ -1,26 +1,31 @@
 package main
 
 import (
-	"os"
+	"bucket/config"
 	"bucket/controller"
+	"os"
+
 	"github.com/gin-gonic/gin"
-	
 )
 
 func setupRouter() *gin.Engine {
+
 	r := gin.Default()
 	r.Static("/public", "./public")
 
 	client := r.Group("/api")
 	{
-		client.POST("/bucket/create", controller.CreateBucket)
+		client.POST("/buckets", controller.CreateBucket)
+		client.POST("/buckets/:bucket", controller.Upload)
+		client.GET("/buckets/:bucket/*filename", controller.GetFile)
 	}
-	
+
 	return r
 }
 
 func main() {
-	port := os.Getenv("PORT");
+	config.ConnectAws()
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
