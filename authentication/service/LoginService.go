@@ -4,13 +4,12 @@ import (
 	"authentication/common"
 	"authentication/config"
 	"authentication/model"
-	"context"
+	repo "authentication/repository/repoImpl"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type authCustomClaims struct {
@@ -54,20 +53,16 @@ func  ValidateToken(encodedToken string) (*jwt.Token, error) {
 }
 
 func Login(dto model.UserLoginDto) (bool,string) {
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel();
-	var  user model.User
 
-	if err := config.UserCollection.FindOne(ctx, bson.M{"username" : dto.Username}).Decode(&user); err != nil{
-		msg := fmt.Println("Username or password incorrect!");
-		return false, msg
+
+	userRepo := repo.NewUserRepo(config.Mongo.UserCollection)
+	user, err := userRepo.FindByUsername(dto.Username); if err != nil{
+		return false, "Username or password incorrect!"
 	}
 	
 	if(!common.CheckPasswordHash(dto.Password, user.Password)){
-		msg := fmt.Println("Username or password incorrect!");
-		return false, msg
+		return false, "Username or password incorrect!"
 	}
-	defer cancel();
 	return true, GenerateToken(user.Username)
 }
 

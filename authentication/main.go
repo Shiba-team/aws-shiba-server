@@ -5,6 +5,7 @@ import (
 
 	"authentication/config"
 	"authentication/controller"
+	"authentication/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,7 @@ func setupRouter() *gin.Engine {
 	{
 		client.POST("/auth/register", controller.Register)
 		client.POST("/auth/login", controller.Login)
+		client.GET("/admin/get-all", middleware.Authentication(nil), controller.GetAllUser)
 	}
 	
 	return r

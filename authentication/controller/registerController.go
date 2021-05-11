@@ -16,9 +16,9 @@ func Register(c * gin.Context){
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	  }
-	result, msg := service.Register(input);
-	if(result == nil){
-		c.JSON(http.StatusInternalServerError, gin.H{"messageError": msg})
+	err := service.Register(input)
+	if err != ""{
+		c.JSON(http.StatusInternalServerError, gin.H{"messageError": err})
 	}
-	c.JSON(http.StatusOK, gin.H{"result" : result, "message": msg})
+	c.JSON(http.StatusOK, gin.H{"message": "Register successful!"})
 }

@@ -13,8 +13,11 @@ import (
 )
 
 //Client Database instance
+type MongoDB struct {
+	UserCollection *mongo.Collection
+}
 
-var UserCollection *mongo.Collection
+var Mongo = &MongoDB{}
 
 func ConnectDatabase() {
 	err := godotenv.Load(".env")
@@ -39,6 +42,6 @@ func ConnectDatabase() {
 	}
 	fmt.Println("Connected to MongoDB!")
 
-	UserCollection = client.Database("authentication").Collection("user")
+	Mongo.UserCollection = client.Database("authentication").Collection("user")
 }
 

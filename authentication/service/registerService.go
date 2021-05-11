@@ -3,26 +3,17 @@ package service
 import (
 	"authentication/config"
 	"authentication/model"
-	"context"
-	"fmt"
-	"time"
-
-	"go.mongodb.org/mongo-driver/bson"
+	repo "authentication/repository/repoImpl"
 )
-
-
-func Register(dto model.UserRegisterDto) (interface{}, string){
-	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
-	findErr := config.UserCollection.FindOne(ctx, bson.M{ "username": dto.Username}); findErr == nil {
-		msg := fmt.Println("Username has already existed!")	
-		return nil, msg
-	}
-	user := model.UserRegisterDtoToEntity(dto)
-	result, insertErr := config.UserCollection.InsertOne(ctx, user)
-		if insertErr != nil {
-			msg := fmt.Println("Can not create user!")		
-			return nil, msg
+func Register(dto model.UserRegisterDto) (string){
+	userRepo := repo.NewUserRepo(config.Mongo.UserCollection)
+	if _, findErr := userRepo.FindByUsername(dto.Username); findErr != nil {
+			return "Username has already existed!"
 		}
-	return result, "Regisger successful!"
+	user := model.UserRegisterDtoToEntity(dto)
+	insertErr := userRepo.InsertUser(user.(model.User))
+		if insertErr != nil {
+		 return "Can not create user!"
+		}
+	return ""
 }
